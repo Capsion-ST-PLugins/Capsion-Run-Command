@@ -1,0 +1,10 @@
+[
+  {
+    "keys": ["alt+f1"],
+    "command": "cps_run_commands"
+  },
+  {
+    "keys": ["alt+f2"],
+    "command": "cps_panel_toggle"
+  },
+]
