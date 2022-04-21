@@ -5,7 +5,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: echo "🎉github.event_name1 -> ${{ github.event_name }}"
-      - run: echo "🎉github.event_name2 -> $GITHUB_EVENT_NAME"
+      - run: echo "🎉github.event_name2 -> ${{ GITHUB_EVENT_NAME }}"
       - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
       - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
       - name: Check out repository code
