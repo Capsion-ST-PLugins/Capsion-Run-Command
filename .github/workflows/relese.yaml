@@ -1,4 +1,4 @@
-name: Capsion-ST-Plugins-Release
+name: Release-sublime-package
 
 env:
   PACKAGE_NAME: "Cps Run Commands.sublime-package"
@@ -12,11 +12,11 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
+    - name: msg
+      run: echo "start package ${{env.PACKAGE_NAME}}"
+
     - name: Checkout
       uses: actions/checkout@v3
-
-    - name: ls
-      run: ls -al
 
     - name: Zip The File
       uses: thedoctor0/zip-release@master
@@ -24,3 +24,13 @@ jobs:
         type: 'zip'
         filename: ${{env.PACKAGE_NAME}}
         exclusions: '*.git* /*node_modules/* .editorconfig .github/ .gitignore/ .git/'
+
+    - name: ls
+      run: ls -al
+
+    - name: Upload the gihub Release
+      uses: softprops/action-gh-release@v1
+      with:
+        token: ${{ secrets.TOKEN }}
+        fles: |
+          ${{env.PACKAGE_NAME}}
