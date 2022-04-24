@@ -7,7 +7,7 @@ on:
       - 'v*'
 
 jobs:
-  rens-on: ubuntu-latest
+  runs-on: ubuntu-latest
 
   steps:
     - name: Checkout
