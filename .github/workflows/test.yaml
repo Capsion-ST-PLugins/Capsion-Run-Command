@@ -1,4 +1,4 @@
-name: Package Plugins
+name: Test
 on: [push]
 jobs:
   Test:

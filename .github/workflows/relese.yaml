@@ -1,4 +1,4 @@
-name: Release-sublime-package
+name: Release
 
 env:
   PACKAGE_NAME: "Cps Run Commands.sublime-package"
@@ -32,5 +32,5 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         token: ${{ secrets.TOKEN }}
-        fles: |
+        files: |
           ${{env.PACKAGE_NAME}}
