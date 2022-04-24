@@ -1,7 +1,7 @@
 name: Release
 
 env:
-  PACKAGE_NAME: "Cps Run Commands.sublime-package"
+  PACKAGE_NAME: "CpsRunCommands.sublime-package"
 
 on:
   push:
@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: msg
-      run: echo "start package ${{env.PACKAGE_NAME}}"
+      run: echo 'PACKAGE_NAME -> ${{env.PACKAGE_NAME}}'
 
     - name: Checkout
       uses: actions/checkout@v3
