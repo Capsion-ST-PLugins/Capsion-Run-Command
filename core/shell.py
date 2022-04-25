@@ -4,6 +4,8 @@ from subprocess import Popen, PIPE
 import platform
 import os
 
+from typing import *
+
 COMMANDS = {
     'node':['node','-v'],
     'npm':['npm','-v'],
@@ -20,13 +22,19 @@ def check_command(target:str) -> bool:
         print(res)
     return True if res else False
 
+class TRun_command(TypedDict):
+    success:bool
+    res:Any
+    err:Any
+
+
 def run_command(
     command:list,
     strBuffer:str=None,
     shell:bool=False,
     decode:str='utf-8',
     cwd=None,
-    pause:bool=False) -> str:
+    pause:bool=False) -> TRun_command:
     """
     @Description {description}
 
@@ -42,10 +50,14 @@ def run_command(
     command = ['node', '-v']
 
     # 简单单向指令
-    res = run_command(command)
+    run_command(command)
 
     # 复杂交互指令
-    run_command(command, decode='gb2312', shell=True, pause=True)
+    res = run_command(command, decode='gb2312', shell=True, pause=True)
+    if res['success']:
+        print(res['res'])
+    else:
+        print(res['err'])
     ```
     @returns `{str}` {description}
 
@@ -65,7 +77,8 @@ def run_command(
             is_pause = ' & pause' if pause else ''
             _command = f'start {new_shell} /c \"{" ".join(command)}{is_pause}\"'
             Popen(_command, shell=True)
-            return True
+            # return True
+            return { "success":True }
 
         # run with outside
         child_process = Popen(command, stdout=PIPE, stdin=PIPE, stderr=PIPE, shell=True)
@@ -79,17 +92,22 @@ def run_command(
         stdout, stderr = child_process.communicate(input=strBuffer, timeout=10000)
 
         if stdout:
-            if decode: return stdout.decode(decode)
-            return stdout
+            if decode:
+                return { "res":stdout.decode(decode), "success":True }
+            return { "res":stdout, "success":True }
             # return stdout.decode('utf-8')
 
-
         if stderr:
-            raise Exception('run_command() 结果出错:', stderr)
+            # raise Exception('run_command() 结果出错:', stderr)
+            print('run_command() 结果出错:', stderr)
+            return { "err":stderr, "success":False }
 
-    except Exception:
-        print('returncode: ', child_process.returncode)
-        raise Exception('run_command() 运行出错:', command)
+        return { "success":False, "err":"nothing change" }
+
+    except Exception as err:
+        print('run_command() 运行出错:', command)
+        # raise Exception('run_command() 运行出错:', command)
+        return { "err":err, "success":False }
 
 if ( __name__ == "__main__"):
     res = run_command(['npm', 'init'], decode='gb2312', shell=True, pause=True, cwd="i:/SteamLibrary")
