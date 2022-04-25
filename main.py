@@ -161,7 +161,8 @@ class CpsRunCommandsCommand(sublime_plugin.TextCommand):
     def on_select(self, user_select):
         # custom input
         if user_select == -1:
-            return
+            # return
+            self.show_input_panel()
 
         elif user_select == 0:
             self.show_input_panel()
