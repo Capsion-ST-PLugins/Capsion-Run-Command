@@ -115,8 +115,11 @@ class CpsRunCommandsCommand(sublime_plugin.TextCommand):
     # 简单的安装指令
     npm i -D @types/node12
 
-    # 需要交互的命令前面添加 "$" 或者 ":"
+    # "$" 或者 ":" 前缀，调用新的shell窗口运行指令
+    # 后续cmd窗口会等待15秒后自动关闭
     $npm init
+
+    # 后续cmd窗口需要用户按任意键才能关闭
     :npm init
     ```
     """
@@ -129,7 +132,7 @@ class CpsRunCommandsCommand(sublime_plugin.TextCommand):
         selection_with_index = [ f'{index + 1}.  {HISTORY.data[index]}' for index in range(len(HISTORY.data))]
 
         if panel_name:
-            window.run_command('hide_panel', {'panel':panel_name})
+            window.run_command('hide_panel', { 'panel':panel_name })
         else:
             self.show_selection([MSG_SELECTIONS_TITLE] + selection_with_index)
 
@@ -166,8 +169,8 @@ class CpsRunCommandsCommand(sublime_plugin.TextCommand):
     def on_select(self, user_select_index:int):
         # custom input
         if user_select_index == -1:
-            # return
-            self.show_input_panel()
+            return
+            # self.show_input_panel()
 
         elif user_select_index == 0:
             self.show_input_panel()
@@ -196,9 +199,14 @@ class CpsRunCommandsCommand(sublime_plugin.TextCommand):
 
         # run in new shell window
         if user_input[0][0] in RUN_IN_NEW_WINDOW_PREFIX:
+            if user_input[0][0] == ':':
+                pause = True
+
+            if user_input[0][0] == '$':
+                pause = 5
 
             commands = str(user_input[1:]).split(' ')
-            shell.run_command(commands, shell=True, pause=True, cwd=cwd)
+            shell.run_command(commands, shell=True, pause=pause, cwd=cwd)
 
             return
 

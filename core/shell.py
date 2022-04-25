@@ -34,7 +34,7 @@ def run_command(
     shell:bool=False,
     decode:str='utf-8',
     cwd=None,
-    pause:bool=False) -> TRun_command:
+    pause:Union[bool,int]=False) -> TRun_command:
     """
     @Description {description}
 
@@ -42,7 +42,7 @@ def run_command(
     - param strBuffer :{str}  需要传输的数据
     - param shell     :{bool} 是否开启一个独立的shell执行指令
     - param decode    :{str}  对返回的结果指定编码方式
-    - param pause     :{bool} 是否暂停
+    - param pause     :{bool} 是否暂停，如果输入数字，则是延时关闭
     - panam cwd       :{str}  指定工作目录
 
     @example
@@ -74,8 +74,16 @@ def run_command(
     try:
         # run with inside
         if shell:
-            is_pause = ' & pause' if pause else ''
-            _command = f'start {new_shell} /c \"{" ".join(command)}{is_pause}\"'
+            command_head = f'start {new_shell} /c \"'
+            command_body = " ".join(command)
+            command_end = ""
+            if isinstance(pause, bool):
+                command_end = ' & pause\"' if pause else '\"'
+            elif isinstance(pause, int):
+                command_end = f' & timeout /t {pause}\"'
+
+            # _command = f'start {new_shell} /c \"{" ".join(command)}{command_end}\"'
+            _command = command_head + command_body + command_end
             Popen(_command, shell=True)
             # return True
             return { "success":True }
