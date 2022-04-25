@@ -43,8 +43,8 @@ DEFAULT_PANEL_SETTINGS = {
     "word_wrap": False,               #
 }
 
-HISTORY_PACKAGE_PATH:str = path.join(sublime.packages_path(), __package__)
-HISTORY_LOCAL_FILE:str = path.join(HISTORY_PACKAGE_PATH, f'.{__package__}.histroy')
+HISTORY_PACKAGE_PATH:str = path.join(sublime.active_window().extract_variables()['packages'], __package__)
+HISTORY_LOCAL_FILE:str = path.join(sublime.active_window().extract_variables()['packages'], 'User', f'.{__package__}.histroy')
 
 MSG_SELECTIONS_HELP = 'Press "Enter" to enter a custom command'
 MSG_SELECTIONS_TITLE = '0.  input custom command'
