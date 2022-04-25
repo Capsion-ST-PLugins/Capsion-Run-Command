@@ -5,7 +5,9 @@ import os
 from os import path
 
 from .core import shell
+from .core.historyManager import History
 from .core.typing import Dict, Optional, List, Generator, Tuple
+
 
 MSG = f'Use the ":" or "$" prefix can make new shell like ":command xxx"'
 PANEL_NAME = 'cps'
@@ -41,6 +43,13 @@ DEFAULT_PANEL_SETTINGS = {
     "word_wrap": False,               #
 }
 
+HISTORY_COMMANDS:List[str] = []
+HISTORY_PACKAGE_PATH:str = path.join(sublime.packages_path(), __package__)
+HISTORY_LOCAL_FILE:str = path.join(HISTORY_PACKAGE_PATH, f'.{__package__}.histroy')
+
+HISTORY = History(HISTORY_LOCAL_FILE)
+print("HISTORY: ", HISTORY)
+
 
 def ensure_panel(panel_name:str) -> sublime.View:
     window = sublime.active_window()
@@ -66,7 +75,7 @@ def create_panel(panel_name:str) -> Optional[sublime.View]:
 
 
 def plugin_loaded():
-    global PANEL_NAME
+    global PANEL_NAME, HISTORY
     print(f'{PANEL_NAME} run command 加载成功')
     ensure_panel(PANEL_NAME)
 
@@ -117,25 +126,55 @@ class CpsRunCommandsCommand(sublime_plugin.TextCommand):
     ```
     """
     def run(self, edit: sublime.Edit):
+        global HISTORY
+
         window = sublime.active_window()
         panel_name = window.active_panel()
 
-        CWD = os.path.dirname(self.view.file_name())
-        print("cwd: ", CWD)
-
+        selection_with_index = [ f'{index + 1}.  {HISTORY.data[index]}' for index in range(len(HISTORY.data))]
 
         if panel_name:
             window.run_command('hide_panel', {'panel':panel_name})
         else:
-            window.show_input_panel(
-                caption=MSG,
-                initial_text="",
-                on_done=self.on_done,
-                on_change=self.on_change,
-                on_cancel=self.on_cancel
+            self.show_selection(['custom input'] + selection_with_index)
+
+    def show_selection(self, items):
+        sublime.active_window().show_quick_panel(
+            items=items,
+            on_select=self.on_select,
+            flags=0,
+            selected_index=-1,
+            placeholder='capsion: ->'
             )
 
-    def on_done(self, user_input: str):
+    def show_input_panel(self, placeholder:str=""):
+        global MSG
+        sublime.active_window().show_input_panel(
+            caption=MSG,
+            initial_text=placeholder,
+            on_done=self.on_done,
+            on_change=self.on_change,
+            on_cancel=self.on_cancel
+        )
+
+    def on_history_selected(self, commands_index:int):
+        commands_index -= 1
+        # print(f'HISTORY.data: {commands_index}  -> ', HISTORY.data[commands_index])
+        sublime.set_timeout_async(self.on_done(HISTORY.data[commands_index]))
+
+    def on_select(self, user_select):
+        # custom input
+        if user_select == -1:
+            return
+
+        elif user_select == 0:
+            self.show_input_panel()
+
+        else:
+            self.on_history_selected(user_select)
+
+    def on_done(self, user_input: int):
+        print("user_input: ", user_input)
         global PANEL_NAME
         sublime.set_timeout_async(self.run_command(user_input, PANEL_NAME))
 
@@ -145,8 +184,10 @@ class CpsRunCommandsCommand(sublime_plugin.TextCommand):
     def on_cancel(self):
         pass
 
-    def run_command(self, user_input:str, panel_name:str):
-        global RUN_IN_NEW_WINDOW_PREFIX, LINE_END, COMMAND_NAME
+    def run_command(self, user_input:str, panel_name:str=None):
+        global RUN_IN_NEW_WINDOW_PREFIX, LINE_END
+        global HISTORY, COMMAND_NAME
+        global PANEL_NAME
 
         cwd = os.path.dirname(self.view.file_name())
 
@@ -161,13 +202,13 @@ class CpsRunCommandsCommand(sublime_plugin.TextCommand):
         command_res = shell.run_command(commands, shell=run_on_new_window, pause=run_on_new_window, cwd=cwd)
 
         if command_res:
+            HISTORY.add(user_input)
+
             command_res += LINE_END
             sublime.active_window().run_command(COMMAND_NAME['update'], {
                 "panel_name":panel_name,
                 'data':command_res
                 })
-
-
 
 class CpsPanelToggleCommand(sublime_plugin.TextCommand):
     """
