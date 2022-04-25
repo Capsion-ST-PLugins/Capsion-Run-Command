@@ -5,8 +5,8 @@ import os
 from os import path
 
 from .core import shell
-from .core.historyManager import History
 from .core.typing import Dict, Optional, List, Generator, Tuple
+from .core.history import History
 
 
 MSG = f'Use the ":" or "$" prefix can make new shell like ":command xxx"'
@@ -22,7 +22,7 @@ LAST_ACTIVE_PANEL = None
 RUN_IN_NEW_WINDOW_PREFIX = [':', "$"]
 LINE_END = f'\n[done by {PANEL_NAME}]'
 
-# panel 默认配置
+
 DEFAULT_PANEL_SETTINGS = {
     "auto_indent": False,             # 是否自动缩进
     "draw_indent_guides": False,      #
@@ -43,13 +43,11 @@ DEFAULT_PANEL_SETTINGS = {
     "word_wrap": False,               #
 }
 
-HISTORY_COMMANDS:List[str] = []
 HISTORY_PACKAGE_PATH:str = path.join(sublime.packages_path(), __package__)
 HISTORY_LOCAL_FILE:str = path.join(HISTORY_PACKAGE_PATH, f'.{__package__}.histroy')
 
-HISTORY = History(HISTORY_LOCAL_FILE)
-print("HISTORY: ", HISTORY)
-
+MSG_SELECTIONS_HELP = 'Press "Enter" to enter a custom command'
+MSG_SELECTIONS_TITLE = '0.  input custom command'
 
 def ensure_panel(panel_name:str) -> sublime.View:
     window = sublime.active_window()
@@ -78,19 +76,16 @@ def plugin_loaded():
     global PANEL_NAME, HISTORY
     print(f'{PANEL_NAME} run command 加载成功')
     ensure_panel(PANEL_NAME)
-
+    HISTORY = History(HISTORY_LOCAL_FILE)
 
 class CpsUpdatePanelCommand(sublime_plugin.TextCommand):
     """
-    @Description 更新 名为 output.testt 的panel窗体数据。
-    @example
-    ```python
-    window = sublime.active_window()
-    window.run_command('testt_update_panel', {
-        "panel_name":panel_name,
-        'data':command_res
-        })
-    ```
+    @Description 的panel窗体数据。
+
+    - param panel_name :{str} "panel_name":panel_name,
+
+    returns `{type}` {description}
+
     """
     def run(self, edit: sublime.Edit, panel_name:str, data:str):
         global OUTPUT_PANEL_NAME
@@ -126,7 +121,7 @@ class CpsRunCommandsCommand(sublime_plugin.TextCommand):
     ```
     """
     def run(self, edit: sublime.Edit):
-        global HISTORY
+        global HISTORY,MSG_SELECTIONS_TITLE
 
         window = sublime.active_window()
         panel_name = window.active_panel()
@@ -136,15 +131,16 @@ class CpsRunCommandsCommand(sublime_plugin.TextCommand):
         if panel_name:
             window.run_command('hide_panel', {'panel':panel_name})
         else:
-            self.show_selection(['custom input'] + selection_with_index)
+            self.show_selection([MSG_SELECTIONS_TITLE] + selection_with_index)
 
     def show_selection(self, items):
+        global MSG_SELECTIONS_HELP
         sublime.active_window().show_quick_panel(
             items=items,
             on_select=self.on_select,
             flags=0,
             selected_index=-1,
-            placeholder='capsion: ->'
+            placeholder=MSG_SELECTIONS_HELP
             )
 
     def show_input_panel(self, placeholder:str=""):

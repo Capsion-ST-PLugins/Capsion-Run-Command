@@ -22,7 +22,7 @@ class History:
         self.data = []
 
         self.check_file_path()
-        print('init History: ', self.data)
+        # print('init History: ', self.data)
 
     def check_file_path(self):
         try:

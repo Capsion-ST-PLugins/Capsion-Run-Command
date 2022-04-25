@@ -1,10 +1,10 @@
 :git add . & git cz
-:npm -v
-:npm -v
-yarn -v
-npm -v
+:git add . & git cz
 git branch
 git branch
 npm -v
-yarn -v
+git branch
+:git add . & git cz
+:npm -v
+:npm -v
 yarn -v
