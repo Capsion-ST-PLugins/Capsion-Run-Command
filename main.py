@@ -196,16 +196,18 @@ class CpsRunCommandsCommand(sublime_plugin.TextCommand):
         else:
             commands = str(user_input).split(' ')
 
-        command_res = shell.run_command(commands, shell=run_on_new_window, pause=run_on_new_window, cwd=cwd)
+        res = shell.run_command(commands, shell=run_on_new_window, pause=run_on_new_window, cwd=cwd)
 
-        if command_res:
-            HISTORY.add(user_input)
+        if res['success']:
+            command_res = res['res']
+        else:
+            command_res = res['err']
 
-            command_res += LINE_END
-            sublime.active_window().run_command(COMMAND_NAME['update'], {
-                "panel_name":panel_name,
-                'data':command_res
-                })
+        command_res += LINE_END
+        sublime.active_window().run_command(COMMAND_NAME['update'], {
+            "panel_name":panel_name,
+            'data':command_res
+            })
 
 class CpsPanelToggleCommand(sublime_plugin.TextCommand):
     """
