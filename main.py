@@ -43,8 +43,8 @@ DEFAULT_PANEL_SETTINGS = {
     "word_wrap": False,               #
 }
 
-HISTORY_PACKAGE_PATH:str = path.join(sublime.active_window().extract_variables()['packages'], __package__)
-HISTORY_LOCAL_FILE:str = path.join(sublime.active_window().extract_variables()['packages'], 'User', f'.{__package__}.histroy')
+HISTORY_PACKAGE_PATH:str = path.join(sublime.packages_path(), __package__)
+HISTORY_LOCAL_FILE:str = path.join(sublime.packages_path(), 'User', f'.{__package__}.histroy')
 
 MSG_SELECTIONS_HELP = 'Press "Enter" to enter a custom command'
 MSG_SELECTIONS_TITLE = '0.  input custom command'
@@ -133,7 +133,12 @@ class CpsRunCommandsCommand(sublime_plugin.TextCommand):
         else:
             self.show_selection([MSG_SELECTIONS_TITLE] + selection_with_index)
 
-    def show_selection(self, items):
+    def show_selection(self, items:List[str]):
+        """
+        @Description 让用户选择是自己输入还是历史记录
+
+        - param items :{List[str]} {description}
+        """
         global MSG_SELECTIONS_HELP
         sublime.active_window().show_quick_panel(
             items=items,
@@ -144,6 +149,11 @@ class CpsRunCommandsCommand(sublime_plugin.TextCommand):
             )
 
     def show_input_panel(self, placeholder:str=""):
+        """
+        @Description 输入自定义命令
+
+        - param placeholder :{str} 占位符
+        """
         global MSG
         sublime.active_window().show_input_panel(
             caption=MSG,
@@ -153,25 +163,20 @@ class CpsRunCommandsCommand(sublime_plugin.TextCommand):
             on_cancel=self.on_cancel
         )
 
-    def on_history_selected(self, commands_index:int):
-        commands_index -= 1
-        # print(f'HISTORY.data: {commands_index}  -> ', HISTORY.data[commands_index])
-        sublime.set_timeout_async(self.on_done(HISTORY.data[commands_index]))
-
-    def on_select(self, user_select):
+    def on_select(self, user_select_index:int):
         # custom input
-        if user_select == -1:
+        if user_select_index == -1:
             # return
             self.show_input_panel()
 
-        elif user_select == 0:
+        elif user_select_index == 0:
             self.show_input_panel()
 
         else:
-            self.on_history_selected(user_select)
+            self.on_done(HISTORY.data[user_select_index - 1])
 
-    def on_done(self, user_input: int):
-        print("user_input: ", user_input)
+    def on_done(self, user_input:int):
+        # print("user_input: ", user_input)
         global PANEL_NAME
         sublime.set_timeout_async(self.run_command(user_input, PANEL_NAME))
 
@@ -186,17 +191,20 @@ class CpsRunCommandsCommand(sublime_plugin.TextCommand):
         global HISTORY, COMMAND_NAME
         global PANEL_NAME
 
+        HISTORY.add(user_input)
         cwd = os.path.dirname(self.view.file_name())
 
-        run_on_new_window = False
-
+        # run in new shell window
         if user_input[0][0] in RUN_IN_NEW_WINDOW_PREFIX:
-            run_on_new_window = pause = True
-            commands = str(user_input[1:]).split(' ')
-        else:
-            commands = str(user_input).split(' ')
 
-        res = shell.run_command(commands, shell=run_on_new_window, pause=run_on_new_window, cwd=cwd)
+            commands = str(user_input[1:]).split(' ')
+            shell.run_command(commands, shell=True, pause=True, cwd=cwd)
+
+            return
+
+        # running in sublime exec
+        commands = str(user_input).split(' ')
+        res = shell.run_command(commands, shell=False, pause=False, cwd=cwd)
 
         if res['success']:
             command_res = res['res']
