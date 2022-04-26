@@ -107,8 +107,8 @@ def run_command(
 
         if stderr:
             # raise Exception('run_command() 结果出错:', stderr)
-            print('run_command() 结果出错:', stderr)
-            return { "err":stderr, "success":False }
+            print('run_command() 命令完成:', stderr)
+            return { "res":stderr, "success":True }
 
         return { "success":False, "err":"nothing change" }
 
