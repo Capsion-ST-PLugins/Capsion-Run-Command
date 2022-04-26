@@ -29,6 +29,7 @@ class History:
         """
         self.file_path = file_path
         self.max_count = max_count - 1
+        self.repeat = repeat
         self.data = []
 
         self.check_file_path()
