@@ -19,6 +19,8 @@ COMMAND_NAME = {
 
 # 记录最近一次关闭的窗体名称
 LAST_ACTIVE_PANEL = None
+LAST_COMMAND_PLACEHOLDER = True
+LAST_COMMAND_STR = ""
 RUN_IN_NEW_WINDOW_PREFIX = [':', "$"]
 LINE_END = f'\n[done by {PANEL_NAME}]'
 
@@ -43,11 +45,15 @@ DEFAULT_PANEL_SETTINGS = {
     "word_wrap": False,               #
 }
 
+
+# histroy settings
 HISTORY_PACKAGE_PATH:str = path.join(sublime.packages_path(), __package__)
 HISTORY_LOCAL_FILE:str = path.join(sublime.packages_path(), 'User', f'.{__package__}.histroy')
 
 MSG_SELECTIONS_HELP = 'Press "Enter" to enter a custom command'
 MSG_SELECTIONS_TITLE = '0.  input custom command'
+
+
 
 def ensure_panel(panel_name:str) -> sublime.View:
     window = sublime.active_window()
@@ -124,7 +130,7 @@ class CpsRunCommandsCommand(sublime_plugin.TextCommand):
     ```
     """
     def run(self, edit: sublime.Edit):
-        global HISTORY,MSG_SELECTIONS_TITLE
+        global HISTORY, MSG_SELECTIONS_TITLE
 
         window = sublime.active_window()
         panel_name = window.active_panel()
@@ -157,7 +163,12 @@ class CpsRunCommandsCommand(sublime_plugin.TextCommand):
 
         - param placeholder :{str} 占位符
         """
-        global MSG
+        global MSG, HISTORY
+        global LAST_COMMAND_PLACEHOLDER, LAST_COMMAND_STR
+
+        if LAST_COMMAND_PLACEHOLDER:
+            placeholder = LAST_COMMAND_STR
+
         sublime.active_window().show_input_panel(
             caption=MSG,
             initial_text=placeholder,
@@ -193,8 +204,12 @@ class CpsRunCommandsCommand(sublime_plugin.TextCommand):
         global RUN_IN_NEW_WINDOW_PREFIX, LINE_END
         global HISTORY, COMMAND_NAME
         global PANEL_NAME
+        global LAST_COMMAND_STR
+
+        LAST_COMMAND_STR = user_input
 
         HISTORY.add(user_input)
+
         cwd = os.path.dirname(self.view.file_name())
 
         # run in new shell window
