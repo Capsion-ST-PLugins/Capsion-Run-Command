@@ -220,7 +220,7 @@ class CpsRunCommandsCommand(sublime_plugin.TextCommand):
             command_res = res['err']
 
         # command_res += LINE_END
-        command_res = f'work_floder: {cwd}\n\n{command_res}\n{LINE_END}'
+        command_res = f'WORK_SPACE: {cwd}\n\n{command_res}\n{LINE_END}'
         sublime.active_window().run_command(COMMAND_NAME['update'], {
             "panel_name":panel_name,
             'data':command_res
