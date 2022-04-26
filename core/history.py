@@ -49,7 +49,7 @@ class History:
             raise FileExistsError
 
     def add(self, histroy:str):
-        if self.repeat:
+        if not self.repeat:
             if histroy in self.data: return self
 
 
