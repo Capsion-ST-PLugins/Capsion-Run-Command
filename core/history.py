@@ -16,7 +16,17 @@ from dataclasses import *
 from os import path
 
 class History:
-    def __init__(self, file_path:str, max_count:int=10):
+    def __init__(self, file_path:str, max_count:int=10, repeat=False):
+        """
+        @Description {description}
+
+        - param file_path :{str}  {description}
+        - param max_count :{int}  {description}
+        - param repeat    :{bool} 是否记录重复命令
+
+        returns `{type}` {description}
+
+        """
         self.file_path = file_path
         self.max_count = max_count - 1
         self.data = []
@@ -37,7 +47,11 @@ class History:
         except Exception as err:
             raise FileExistsError
 
-    def add(self, histroy:Any):
+    def add(self, histroy:str):
+        if self.repeat:
+            if histroy in self.data: return self
+
+
         while len(self.data) > self.max_count:
             self.data.pop()
 
