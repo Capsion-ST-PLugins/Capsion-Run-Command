@@ -1,17 +1,20 @@
-from typing import NoReturn
 import sublime
 import sublime_plugin
 import os
 from os import path
 
 from .core import shell
-from .core.typing import Dict, Optional, List, Generator, Tuple
+from .core import utils
+from .core.typing import Optional, List
 from .core.history import History
 
 
 MSG = f'Use the ":" or "$" prefix can make new shell like ":command xxx"'
 PANEL_NAME = 'cps'
+PLUGIN_NAME = 'cps_run_commands'
+DEFAULT_SETTINGS = "cps.sublime-settings"
 OUTPUT_PANEL_NAME = f'output.{ PANEL_NAME }'
+SETTINGS = None
 
 COMMAND_NAME = {
     "update":f"{PANEL_NAME}_update_panel"
@@ -54,7 +57,6 @@ MSG_SELECTIONS_HELP = 'Press "Enter" to enter a custom command'
 MSG_SELECTIONS_TITLE = '0.  input custom command'
 
 
-
 def ensure_panel(panel_name:str) -> sublime.View:
     window = sublime.active_window()
     panel = window.find_output_panel(panel_name)
@@ -65,6 +67,7 @@ def ensure_panel(panel_name:str) -> sublime.View:
         else:
             return create_panel(panel_name)
     except Exception as err:
+        print(err)
         return window.find_output_panel('exec')
 
 def create_panel(panel_name:str) -> Optional[sublime.View]:
@@ -77,12 +80,74 @@ def create_panel(panel_name:str) -> Optional[sublime.View]:
     [settings.set(key,value) for key, value in DEFAULT_PANEL_SETTINGS]
     return panel
 
+class CpsEditSettingCommand(sublime_plugin.TextCommand):
+    def run(self, edit:sublime.Edit, base_file:str, package_name:str):
+        sublime.active_window().run_command('edit_settings', {
+                "base_file": os.path.join(sublime.packages_path(), __package__, '.sublime', base_file),
+                "default": '{\n  \"' + package_name + '\":{\n    /*请在插件名称内选项内添加自定义配置*/\n    \n  }\n}'
+            })
+
+class SettingManager:
+    def __init__(self, package_name:str, default_settings:str):
+        self.package_name = package_name
+        self.default_settings = default_settings
+
+        self.data = {}
+
+        self.file_paths = self.get_setting_file_path()
+        self.get_setting_file_path()
+
+        sublime.set_timeout_async(self.plugin_loaded_async)
+
+    def __getitem__(self, target):
+        if target in self.data:
+            return self.data[target]
+
+    def get_setting_file_path(self) -> dict:
+        return {
+            'user_path':os.path.join(sublime.packages_path(),'User'),
+            'default_settings':os.path.join(sublime.packages_path(), __package__, '.sublime', self.default_settings),
+            'user_settings':os.path.join(sublime.packages_path(),'User', self.default_settings),
+        }
+
+    def plugin_loaded_async(self):
+        """
+        @Description 监听用户配置文件
+        """
+        with open(self.file_paths['default_settings'], 'r', encoding='utf8') as f:
+
+            self.data = sublime.decode_value(f.read()).get(self.package_name, {})
+
+            if len(list(self.data.keys())) == 0:
+                raise Exception('读取配置失败 ~~~ 请确保一下文件真实存在： ', self.file_paths['default_settings'])
+
+        user_settings = sublime.load_settings(self.default_settings)
+        utils.recursive_update(self.data, user_settings.to_dict()[self.package_name])
+        user_settings.add_on_change(self.default_settings, self._on_settings_change)
+
+    def _on_settings_change(self):
+        tmp = sublime.load_settings(self.default_settings).get(self.package_name, None)
+
+        if not tmp or not isinstance(tmp, dict): return
+
+        utils.recursive_update(self.data, tmp)
+
+        print('count: ', self.data)
+
+        return
+
+
 
 def plugin_loaded():
-    global PANEL_NAME, HISTORY
+    global PANEL_NAME, HISTORY, DEFAULT_SETTINGS, SETTINGS
     print(f'{PANEL_NAME} run command 加载成功')
     ensure_panel(PANEL_NAME)
-    HISTORY = History(HISTORY_LOCAL_FILE)
+
+    SETTINGS = SettingManager(PLUGIN_NAME, DEFAULT_SETTINGS)
+    HISTORY = History(HISTORY_LOCAL_FILE, max_count=50)
+
+
+
 
 class CpsUpdatePanelCommand(sublime_plugin.TextCommand):
     """
@@ -130,12 +195,18 @@ class CpsRunCommandsCommand(sublime_plugin.TextCommand):
     ```
     """
     def run(self, edit: sublime.Edit):
-        global HISTORY, MSG_SELECTIONS_TITLE
+        global HISTORY, MSG_SELECTIONS_TITLE, SETTINGS
 
         window = sublime.active_window()
         panel_name = window.active_panel()
 
-        selection_with_index = [ f'{index + 1}.  {HISTORY.data[index]}' for index in range(len(HISTORY.data))]
+        if SETTINGS and SETTINGS['history_count']:
+            commands_count = SETTINGS['history_count']
+        else:
+            commands_count = len(HISTORY.data)
+        commands_list = HISTORY.data[0:commands_count]
+
+        selection_with_index = [ f'{index + 1}.  {HISTORY.data[index]}' for index in range(len(commands_list))]
 
         if panel_name:
             window.run_command('hide_panel', { 'panel':panel_name })

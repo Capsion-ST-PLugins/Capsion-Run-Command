@@ -1,6 +1,19 @@
 [
   {
-    "caption": "Print Currt Param",
-    "command": "cps_print_param"
+    "caption": "Capsion-ST-PLugins",
+    "children": [
+      {
+        "caption": "Run-Commands",
+        "command": "cps_run_commands"
+      },
+      {
+        "caption": "Run-Commands-settings",
+        "command": "cps_edit_setting",
+        "args": {
+          "base_file":"cps.sublime-settings",
+          "package_name":"cps_run_commands"
+        }
+      },
+    ]
   },
 ]
