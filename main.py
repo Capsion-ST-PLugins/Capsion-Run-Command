@@ -204,7 +204,9 @@ class CpsRunCommandsCommand(sublime_plugin.TextCommand):
             commands_count = SETTINGS['history_count']
         else:
             commands_count = len(HISTORY.data)
+
         commands_list = HISTORY.data[0:commands_count]
+        print("commands_count: ", commands_count)
 
         selection_with_index = [ f'{index + 1}.  {HISTORY.data[index]}' for index in range(len(commands_list))]
 
@@ -284,21 +286,22 @@ class CpsRunCommandsCommand(sublime_plugin.TextCommand):
         cwd = os.path.dirname(self.view.file_name())
 
         # run in new shell window
+        run_with_new_window = False
         if user_input[0][0] in RUN_IN_NEW_WINDOW_PREFIX:
             if user_input[0][0] == ':':
-                pause = True
+                run_with_new_window = True
 
             if user_input[0][0] == '$':
-                pause = 5
+                run_with_new_window = 5
 
             commands = str(user_input[1:]).split(' ')
-            shell.run_command(commands, shell=True, pause=pause, cwd=cwd)
+            shell.run_command(commands, shell=bool(run_with_new_window), pause=run_with_new_window, cwd=cwd)
 
             return
 
         # running in sublime exec
         commands = str(user_input).split(' ')
-        res = shell.run_command(commands, shell=False, pause=False, cwd=cwd)
+        res = shell.run_command(commands, shell=run_with_new_window, pause=run_with_new_window, cwd=cwd)
 
         if res['success']:
             command_res = res['res']
