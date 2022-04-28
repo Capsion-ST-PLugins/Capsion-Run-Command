@@ -206,7 +206,7 @@ class CpsRunCommandsCommand(sublime_plugin.TextCommand):
             commands_count = len(HISTORY.data)
 
         commands_list = HISTORY.data[0:commands_count]
-        print("commands_count: ", commands_count)
+        # print("commands_count: ", commands_count)
 
         selection_with_index = [ f'{index + 1}.  {HISTORY.data[index]}' for index in range(len(commands_list))]
 
