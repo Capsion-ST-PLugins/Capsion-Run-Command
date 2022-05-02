@@ -295,7 +295,7 @@ class CpsRunCommandsCommand(sublime_plugin.TextCommand):
             WORK_SPACE = path.abspath(SETTINGS['default_workspace'])
 
         if WORK_SPACE in CANT_RUN_WORK_SPACE:
-            sublime.message_dialog(f"当前没有打开文件，或者当前目录不被允许运行命令: {WORK_SPACE}")
+            sublime.message_dialog(f"当前没有打开文件，或者当前目录不被允许运行命令: {WORK_SPACE}，你可以通过配置 'default_workspace' 字段来指定默认工作目录。")
             return
 
         # run in new shell window
