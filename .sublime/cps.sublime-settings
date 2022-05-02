@@ -4,6 +4,7 @@
   "mail": "373704015@qq.com", //本插件任何问题请联系qq
 
   "cps_run_commands": {
-    "history_count":30,
+    "default_workspace":".",
+    "history_count":100,
   }
 }

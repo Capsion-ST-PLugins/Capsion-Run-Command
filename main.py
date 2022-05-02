@@ -9,12 +9,15 @@ from .core.typing import Optional, List
 from .core.history import History
 
 
+
 MSG = f'Use the ":" or "$" prefix can make new shell like ":command xxx"'
 PANEL_NAME = 'cps'
 PLUGIN_NAME = 'cps_run_commands'
 DEFAULT_SETTINGS = "cps.sublime-settings"
 OUTPUT_PANEL_NAME = f'output.{ PANEL_NAME }'
 SETTINGS = None
+WORK_SPACE = ""
+CANT_RUN_WORK_SPACE = [path.abspath("."), path.abspath(__package__)]
 
 COMMAND_NAME = {
     "update":f"{PANEL_NAME}_update_panel"
@@ -140,12 +143,13 @@ class SettingManager:
 
 def plugin_loaded():
     global PANEL_NAME, HISTORY, DEFAULT_SETTINGS, SETTINGS
+    global WORK_SPACE
     print(f'{PANEL_NAME} run command 加载成功')
     ensure_panel(PANEL_NAME)
 
     SETTINGS = SettingManager(PLUGIN_NAME, DEFAULT_SETTINGS)
     HISTORY = History(HISTORY_LOCAL_FILE, max_count=50)
-
+    WORK_SPACE = path.abspath(SETTINGS['default_workspace'])
 
 
 
@@ -278,12 +282,21 @@ class CpsRunCommandsCommand(sublime_plugin.TextCommand):
         global HISTORY, COMMAND_NAME
         global PANEL_NAME
         global LAST_COMMAND_STR
+        global WORK_SPACE
 
         LAST_COMMAND_STR = user_input
 
         HISTORY.add(user_input)
 
-        cwd = os.path.dirname(self.view.file_name())
+        if self.view.file_name():
+            WORK_SPACE = os.path.dirname(self.view.file_name())
+        else:
+            if not SETTINGS: return print('没有配置文件')
+            WORK_SPACE = path.abspath(SETTINGS['default_workspace'])
+
+        if WORK_SPACE in CANT_RUN_WORK_SPACE:
+            sublime.message_dialog(f"当前没有打开文件，或者当前目录不被允许运行命令: {WORK_SPACE}")
+            return
 
         # run in new shell window
         run_with_new_window = False
@@ -295,13 +308,13 @@ class CpsRunCommandsCommand(sublime_plugin.TextCommand):
                 run_with_new_window = 5
 
             commands = str(user_input[1:]).split(' ')
-            shell.run_command(commands, shell=bool(run_with_new_window), pause=run_with_new_window, cwd=cwd)
+            shell.run_command(commands, shell=bool(run_with_new_window), pause=run_with_new_window, cwd=WORK_SPACE)
 
             return
 
         # running in sublime exec
         commands = str(user_input).split(' ')
-        res = shell.run_command(commands, shell=run_with_new_window, pause=run_with_new_window, cwd=cwd)
+        res = shell.run_command(commands, shell=run_with_new_window, pause=run_with_new_window, cwd=WORK_SPACE)
 
         if res['success']:
             command_res = res['res']
@@ -309,7 +322,7 @@ class CpsRunCommandsCommand(sublime_plugin.TextCommand):
             command_res = res['err']
 
         # command_res += LINE_END
-        command_res = f'WORK_SPACE: {cwd}\n\n{command_res}\n{LINE_END}'
+        command_res = f'WORK_SPACE: {WORK_SPACE}\n\n{command_res}\n{LINE_END}'
         sublime.active_window().run_command(COMMAND_NAME['update'], {
             "panel_name":panel_name,
             'data':command_res
