@@ -17,7 +17,7 @@ DEFAULT_SETTINGS = "cps.sublime-settings"
 OUTPUT_PANEL_NAME = f'output.{ PANEL_NAME }'
 SETTINGS = None
 WORK_SPACE = ""
-CANT_RUN_WORK_SPACE = [path.abspath("."), path.abspath(__package__)]
+CANT_RUN_WORK_SPACE = [path.abspath("."), path.abspath(path.dirname(__package__))]
 
 COMMAND_NAME = {
     "update":f"{PANEL_NAME}_update_panel"
