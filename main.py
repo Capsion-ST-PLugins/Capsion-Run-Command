@@ -285,18 +285,18 @@ class CpsRunCommandsCommand(sublime_plugin.TextCommand):
         global WORK_SPACE
 
         LAST_COMMAND_STR = user_input
-
         HISTORY.add(user_input)
+        has_open_file = self.view.file_name()
 
-        if self.view.file_name():
-            WORK_SPACE = os.path.dirname(self.view.file_name())
+        if has_open_file:
+            WORK_SPACE = os.path.dirname(has_open_file)
         else:
-            if not SETTINGS: return print('没有配置文件')
-            WORK_SPACE = path.abspath(SETTINGS['default_workspace'])
-
-        if WORK_SPACE in CANT_RUN_WORK_SPACE:
-            sublime.message_dialog(f"当前没有打开文件，或者当前目录不被允许运行命令: {WORK_SPACE}，你可以通过配置 'default_workspace' 字段来指定默认工作目录。")
-            return
+            # if WORK_SPACE in CANT_RUN_WORK_SPACE:
+            #     sublime.message_dialog(f"当前没有打开文件，或者当前目录不被允许运行命令: {WORK_SPACE}，你可以通过配置 'default_workspace' 字段来指定默认工作目录。")
+            # else:
+            #     if not SETTINGS: return print('没有配置文件')
+            if not WORK_SPACE and SETTINGS:
+                WORK_SPACE = path.abspath(SETTINGS['default_workspace'])
 
         # run in new shell window
         run_with_new_window = False
