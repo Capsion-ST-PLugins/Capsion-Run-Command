@@ -225,6 +225,7 @@ class CpsRunCommandsCommand(sublime_plugin.TextCommand):
 
         - param items :{List[str]} {description}
         """
+        
         global MSG_SELECTIONS_HELP
         sublime.active_window().show_quick_panel(
             items=items,
