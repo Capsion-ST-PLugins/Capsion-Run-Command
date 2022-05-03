@@ -16,7 +16,7 @@ from dataclasses import *
 from os import path
 
 class History:
-    def __init__(self, file_path:str, max_count:int=10, repeat=False):
+    def __init__(self, file_path:str, max_count:int=500, repeat=False):
         """
         @Description {description}
 

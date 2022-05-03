@@ -148,7 +148,7 @@ def plugin_loaded():
     ensure_panel(PANEL_NAME)
 
     SETTINGS = SettingManager(PLUGIN_NAME, DEFAULT_SETTINGS)
-    HISTORY = History(HISTORY_LOCAL_FILE, max_count=50)
+    HISTORY = History(HISTORY_LOCAL_FILE, max_count=100)
     WORK_SPACE = path.abspath(SETTINGS['default_workspace'])
 
 

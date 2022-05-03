@@ -8,21 +8,39 @@
     <img flex="left" src="https://img.shields.io/github/license/caoxiemeihao/electron-vite-vue?style=flat"/>
 </div>
 
-[English](./README.en.md) | 简体中文
+[English](README.en.md) | 简体中文
 
 
 
 # 使用|Usage
 
 - **`Alt + f1` 调出命令输入框，直接执行`cmd`的命令**
+```bash
+# 调出输入框
+alt + f1
 
+# 支持单条命令
+npm i
+
+# 支持组合命令
+git add . & git cz
+mkdir projectName & cd projectName & npm init -y
+
+
+# "$" 或者 ":" 前缀
+# 在新的cmd窗口执行，且15秒后自动关闭
+$npm init -y
+
+# 在新的cmd窗口执行，按任意键才能关闭
+:npm init -y
+```
 ![](screenshot/step1.gif)
 
 
 
 - **历史记录功能**
-
-![](screenshot\step1.gif)
+默认记录100条，最高500条
+![](screenshot\step2.gif)
 
 
 
