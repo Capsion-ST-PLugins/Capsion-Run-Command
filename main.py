@@ -53,8 +53,8 @@ DEFAULT_PANEL_SETTINGS = {
 
 
 # histroy settings
-HISTORY_PACKAGE_PATH:str = path.join(sublime.packages_path(), __package__)
-HISTORY_LOCAL_FILE:str = path.join(sublime.packages_path(), 'User', f'.{__package__}.histroy')
+HISTORY_PACKAGE_PATH = path.join(sublime.packages_path(), __package__)
+HISTORY_LOCAL_FILE = path.join(sublime.packages_path(), 'User', f'.{__package__}.histroy')
 
 MSG_SELECTIONS_HELP = 'Press "Enter" to enter a custom command'
 MSG_SELECTIONS_TITLE = '0.  input custom command'
