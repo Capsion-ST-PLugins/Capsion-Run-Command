@@ -5,6 +5,6 @@
 
   "cps_run_commands": {
     "default_workspace":".",
-    "history_count":100,
+    "history_count":500,
   }
 }
