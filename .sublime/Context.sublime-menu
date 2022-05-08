@@ -1,13 +1,10 @@
 [
   {
-    "caption": "Capsion-ST-PLugins",
+    "id":"cps-settings",
+    "caption": "Capsion-ST-Plugins-Settings",
     "children": [
       {
         "caption": "Run-Commands",
-        "command": "cps_run_commands"
-      },
-      {
-        "caption": "Run-Commands-settings",
         "command": "cps_edit_setting",
         "args": {
           "base_file":"cps.sublime-settings",
@@ -15,5 +12,9 @@
         }
       },
     ]
+  },
+  {
+    "caption": "Capsion-Run-Commands",
+    "command": "cps_run_commands"
   },
 ]

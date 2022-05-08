@@ -10,7 +10,7 @@ from .core.history import History
 
 
 
-MSG = f'Use the ":" or "$" prefix can make new shell like ":command xxx"'
+MSG = f'Use1 the ":" or "$" prefix can make new shell like ":command xxx"'
 PANEL_NAME = 'cps'
 PLUGIN_NAME = 'cps_run_commands'
 DEFAULT_SETTINGS = "cps.sublime-settings"
