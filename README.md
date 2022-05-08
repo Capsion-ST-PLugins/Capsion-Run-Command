@@ -34,6 +34,7 @@ $npm init -y
 # 在新的cmd窗口执行，按任意键才能关闭
 :npm init -y
 ```
+- **便捷的快速输入常用命令**
 ![](screenshot/step1.gif)
 
 
@@ -43,10 +44,11 @@ $npm init -y
 ![](screenshot\step2.gif)
 
 
+- **快速的搜索历史记录**
+![](screenshot\step3.gif)
+![](screenshot\step4.gif)
 
-
-
-- **自定义配置**
+- **插件配置**
 
 ```json
 // Packages/User/cps.sublime-settings
@@ -55,7 +57,7 @@ $npm init -y
   "author": "CPS",
   "mail": "373704015@qq.com",
   
-  "cps_run_commands": {
+  "cps_run_commands": {      // 所有配置都在这个字段内
     "default_workspace":".", // 默认的工作目录
     "history_count":100,     // 历史记录数量
   }
