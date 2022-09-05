@@ -1,20 +1,25 @@
 [
   {
-    "id":"cps-settings",
-    "caption": "Capsion-ST-Plugins-Settings",
+    "id":"cps-plugins",
+    "caption": "CPS-Plugins",
     "children": [
       {
         "caption": "Run-Commands",
-        "command": "cps_edit_setting",
-        "args": {
-          "base_file":"cps.sublime-settings",
-          "package_name":"cps_run_commands"
-        }
+        "children": [
+          {
+            "caption": "settings",
+            "command": "cps_edit_setting",
+            "args": {
+              "base_file":"cps.sublime-settings",
+              "package_name":"cps_run_commands"
+            }
+          },
+          {
+            "caption": "Capsion-Run-Commands",
+            "command": "cps_run_commands"
+          },
+        ],
       },
     ]
-  },
-  {
-    "caption": "Capsion-Run-Commands",
-    "command": "cps_run_commands"
   },
 ]

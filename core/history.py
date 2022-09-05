@@ -15,8 +15,9 @@ from typing import *
 from dataclasses import *
 from os import path
 
+
 class History:
-    def __init__(self, file_path:str, max_count:int=500, repeat=False):
+    def __init__(self, file_path: str, max_count: int = 500, repeat=False):
         """
         @Description {description}
 
@@ -38,20 +39,20 @@ class History:
     def check_file_path(self):
         try:
             if not os.path.exists(self.file_path):
-                with open(self.file_path, 'w') as f:
+                with open(self.file_path, "w") as f:
                     f.write("")
             else:
-                with open(self.file_path, 'r') as f:
-                    self.data = f.read().split('\n')
+                with open(self.file_path, "r") as f:
+                    self.data = f.read().split("\n")
             return self
 
         except Exception as err:
             raise FileExistsError
 
-    def add(self, histroy:str):
+    def add(self, histroy: str):
         if not self.repeat:
-            if histroy in self.data: return self
-
+            if histroy in self.data:
+                return self
 
         while len(self.data) > self.max_count:
             self.data.pop()
@@ -61,18 +62,19 @@ class History:
         return self
 
     def dump(self):
-        with open(self.file_path, 'w') as f:
-            f.write('\n'.join(self.data))
+        with open(self.file_path, "w") as f:
+            f.write("\n".join(self.data))
         return self
 
     def __str__(self):
-        return ','.join(self.data)
+        return ",".join(self.data)
 
     # def __getitem__(self, target):
     #     if isinstance(target, int) and target -1 <= self.max_count:
     #         return self.data[target - 1]
 
-if ( __name__ == "__main__"):
-    import sys
-    print(sys.path)
 
+if __name__ == "__main__":
+    import sys
+
+    print(sys.path)

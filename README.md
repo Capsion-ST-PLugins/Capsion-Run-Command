@@ -26,13 +26,14 @@ npm i
 git add . & git cz
 mkdir projectName & cd projectName & npm init -y
 
+# 使用 ":" 前缀会创建一个独立的cmd窗口来执行命令
+:npm init -y
 
-# "$" 或者 ":" 前缀
-# 在新的cmd窗口执行，且15秒后自动关闭
+# 使用  "$" 前缀执行的命令不会记入历史记录，并且命令成功后，窗口自动关闭
 $npm init -y
 
-# 在新的cmd窗口执行，按任意键才能关闭
-:npm init -y
+# 不使用任何后缀，会使用sublime内置的命令面板执行命令，无法进行交互
+npm init
 ```
 - **便捷的快速输入常用命令**
 ![](screenshot/step1.gif)
