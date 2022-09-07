@@ -258,7 +258,7 @@ class CpsRunCommandsCommand(sublime_plugin.TextCommand):
 
     def show_input_panel(self, placeholder: str = ""):
         """
-        @Description 输入自定义命令
+        输入自定义命令
 
         - param placeholder :{str} 占位符
         """
@@ -300,6 +300,11 @@ class CpsRunCommandsCommand(sublime_plugin.TextCommand):
         pass
 
     def run_command(self, user_input: str, panel_name: str = None):
+        """
+        入口函数，通过分析用户输入的命令并执行
+
+        - param user_input :{str} 用户的原始输入
+        """
         global RUN_IN_NEW_WINDOW_PREFIX, LINE_END
         global HISTORY, COMMAND_NAME
         global PANEL_NAME
