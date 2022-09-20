@@ -36,6 +36,13 @@ class History:
         self.check_file_path()
         # print('init History: ', self.data)
 
+    def delete_by_index(self, index: int):
+        if index > len(self.data):
+            return
+
+        self.data.remove(self.data[index])
+        self.dump()
+
     def check_file_path(self):
         try:
             if not os.path.exists(self.file_path):

@@ -27,6 +27,9 @@ LAST_COMMAND_STR = ""
 RUN_IN_NEW_WINDOW_PREFIX = [":", "$"]
 LINE_END = f"\n[done by {PANEL_NAME}]"
 
+MODE_CUSTOM_COMMAND = 0
+MODE_DELETE_HISTORY = 1
+
 
 DEFAULT_PANEL_SETTINGS = {
     "auto_indent": False,  # 是否自动缩进
@@ -56,7 +59,10 @@ HISTORY_LOCAL_FILE = path.join(
 )
 
 MSG_SELECTIONS_HELP = 'Press "Enter" to enter a custom command'
-MSG_SELECTIONS_TITLE = "0.  input custom command"
+HIGHEST_SELECTIONS = [
+    "【command】 input custom command",
+    "【command】 delete histroy command",
+]
 
 
 def ensure_panel(panel_name: str) -> sublime.View:
@@ -82,6 +88,10 @@ def create_panel(panel_name: str) -> Optional[sublime.View]:
 
     [settings.set(key, value) for key, value in DEFAULT_PANEL_SETTINGS]
     return panel
+
+
+class CpsCommandTemplate(sublime_plugin.TextCommand):
+    pass
 
 
 class CpsEditSettingCommand(sublime_plugin.TextCommand):
@@ -217,7 +227,7 @@ class CpsRunCommandsCommand(sublime_plugin.TextCommand):
     """
 
     def run(self, edit: sublime.Edit):
-        global HISTORY, MSG_SELECTIONS_TITLE, SETTINGS
+        global HISTORY, HIGHEST_SELECTIONS, SETTINGS
 
         window = sublime.active_window()
         panel_name = window.active_panel()
@@ -227,18 +237,17 @@ class CpsRunCommandsCommand(sublime_plugin.TextCommand):
         else:
             commands_count = len(HISTORY.data)
 
-        commands_list = HISTORY.data[0:commands_count]
-        # print("commands_count: ", commands_count)
+        commands_list = HIGHEST_SELECTIONS + HISTORY.data[0:commands_count]
 
+        # 生成: "x. command" 的格式
         selection_with_index = [
-            f"{index + 1}.  {HISTORY.data[index]}"
-            for index in range(len(commands_list))
+            f"{index}.  {commands_list[index]}" for index in range(len(commands_list))
         ]
 
         if panel_name:
             window.run_command("hide_panel", {"panel": panel_name})
         else:
-            self.show_selection([MSG_SELECTIONS_TITLE] + selection_with_index)
+            self.show_selection(selection_with_index)
 
     def show_selection(self, items: List[str]):
         """
@@ -256,11 +265,11 @@ class CpsRunCommandsCommand(sublime_plugin.TextCommand):
             placeholder=MSG_SELECTIONS_HELP,
         )
 
-    def show_input_panel(self, placeholder: str = ""):
+    def input_custom_commands(self, placeholder: str = ""):
         """
-        输入自定义命令
-
         - param placeholder :{str} 占位符
+        - param mode=0      :{int} 业务模式 MODE_CUSTOM_COMMAND|MODE_DELETE_HISTORY
+
         """
         global MSG, HISTORY
         global LAST_COMMAND_PLACEHOLDER, LAST_COMMAND_STR
@@ -276,17 +285,50 @@ class CpsRunCommandsCommand(sublime_plugin.TextCommand):
             on_cancel=self.on_cancel,
         )
 
+    def on_delete_history_command_select(self, command_index: int):
+        print("on_delete_history_command_select: ", command_index)
+
+        # 防止误删，当输入是默认时，什么都不做
+        if command_index == -1:
+            return
+
+        try:
+            HISTORY.delete_by_index(command_index)
+        except Exception as e:
+            print("history delete fail: ", command_index)
+            print("history delete fail: ", e)
+
     def on_select(self, user_select_index: int):
-        # custom input
+        global HIGHEST_SELECTIONS, HISTORY
+        global MODE_CUSTOM_COMMAND, MODE_DELETE_HISTORY
+
+        # 当输入是默认时，什么都不做
         if user_select_index == -1:
             return
-            # self.show_input_panel()
 
-        elif user_select_index == 0:
-            self.show_input_panel()
+        # 【command】 delete histroy command
+        elif user_select_index == MODE_DELETE_HISTORY:
+            placeholder = f"input 0~{len(HISTORY.data)}"
+            # 生成: "x. command" 的格式
+            selection_with_index = [
+                f"{index}.  {HISTORY.data[index]}" for index in range(len(HISTORY.data))
+            ]
+
+            # 重新显示所有命令
+            sublime.active_window().show_quick_panel(
+                items=selection_with_index,
+                on_select=self.on_delete_history_command_select,
+                flags=0,
+                selected_index=-1,
+                placeholder="select a command to delete",
+            )
+
+        # 【command】 input custom command
+        elif user_select_index == MODE_CUSTOM_COMMAND:
+            self.input_custom_commands()
 
         else:
-            self.on_done(HISTORY.data[user_select_index - 1])
+            self.on_done(HISTORY.data[user_select_index - len(HIGHEST_SELECTIONS)])
 
     def on_done(self, user_input: int):
         # print("user_input: ", user_input)
