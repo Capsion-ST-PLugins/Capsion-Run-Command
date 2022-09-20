@@ -39,14 +39,17 @@ class History:
     def check_file_path(self):
         try:
             if not os.path.exists(self.file_path):
-                with open(self.file_path, "w") as f:
+                with open(self.file_path, "w", encoding="utf-8") as f:
                     f.write("")
             else:
-                with open(self.file_path, "r") as f:
-                    self.data = f.read().split("\n")
+                with open(self.file_path, "r", encoding="utf-8") as f:
+                    data = f.read().split("\n")
+                    self.data = list(set(data))
+
             return self
 
         except Exception as err:
+            print(err)
             raise FileExistsError
 
     def add(self, histroy: str):
@@ -62,7 +65,7 @@ class History:
         return self
 
     def dump(self):
-        with open(self.file_path, "w") as f:
+        with open(self.file_path, "w", encoding="utf-8") as f:
             f.write("\n".join(self.data))
         return self
 
