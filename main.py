@@ -237,17 +237,18 @@ class CpsRunCommandsCommand(sublime_plugin.TextCommand):
         else:
             commands_count = len(HISTORY.data)
 
-        commands_list = HIGHEST_SELECTIONS + HISTORY.data[0:commands_count]
+        commands_list = HISTORY.data[0:commands_count]
 
         # 生成: "x. command" 的格式
         selection_with_index = [
-            f"{index}.  {commands_list[index]}" for index in range(len(commands_list))
+            f"{index + 1 }.  {commands_list[index]}"
+            for index in range(len(commands_list))
         ]
 
         if panel_name:
             window.run_command("hide_panel", {"panel": panel_name})
         else:
-            self.show_selection(selection_with_index)
+            self.show_selection(HIGHEST_SELECTIONS + selection_with_index)
 
     def show_selection(self, items: List[str]):
         """
