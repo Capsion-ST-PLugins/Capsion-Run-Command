@@ -65,6 +65,7 @@ class History:
         return self
 
     def dump(self):
+        self.data = list(set(self.data))
         with open(self.file_path, "w", encoding="utf-8") as f:
             f.write("\n".join(self.data))
         return self
