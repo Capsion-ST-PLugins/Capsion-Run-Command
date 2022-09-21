@@ -29,7 +29,7 @@ LINE_END = f"\n[done by {PANEL_NAME}]"
 
 MODE_CUSTOM_COMMAND = 0
 MODE_DELETE_HISTORY = 1
-
+HISTORY = None
 
 DEFAULT_PANEL_SETTINGS = {
     "auto_indent": False,  # 是否自动缩进
