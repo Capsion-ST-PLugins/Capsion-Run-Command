@@ -11,7 +11,7 @@ DEFAULT_SETTINGS = "cps.sublime-settings"
 
 PANEL_NAME = "cps"
 BASE_PACKAGE_NAME = "cps-plugins"
-PLUGIN_NAME = "cps_run_commands"
+PLUGIN_NAME = "run-commands"
 
 OUTPUT_PANEL_NAME = f"output.{ PANEL_NAME }"
 
@@ -56,7 +56,7 @@ HIGHEST_SELECTIONS = [
     "【command】 input custom command",
     "【command】 delete histroy command",
 ]
-history_file = path.join(sublime.packages_path(), "User", f".{PLUGIN_NAME}.histroy")
+history_file = path.join(sublime.packages_path(), "User", f".{__package__}.histroy")
 HISTORY = History(history_file, max_count=100)
 
 
@@ -144,9 +144,10 @@ class CpsRunCommandsCommand(sublime_plugin.TextCommand):
     """
 
     def run(self, edit: sublime.Edit):
-        global HISTORY, HIGHEST_SELECTIONS, PLUGIN_NAME
+        global HISTORY, HIGHEST_SELECTIONS, DEFAULT_SETTINGS
 
         SETTINGS = sublime.load_settings(DEFAULT_SETTINGS).get(PLUGIN_NAME, {})
+        print("SETTINGS: ", SETTINGS)
 
         window = sublime.active_window()
         panel_name = window.active_panel()
