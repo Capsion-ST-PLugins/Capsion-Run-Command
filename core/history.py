@@ -31,7 +31,7 @@ class History:
         self.file_path = file_path
         self.max_count = max_count - 1
         self.repeat = repeat
-        self.data = []
+        self.data = []  # list[str]
 
         self.check_file_path()
         # print('init History: ', self.data)

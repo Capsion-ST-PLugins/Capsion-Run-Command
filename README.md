@@ -8,9 +8,6 @@
     <img flex="left" src="https://img.shields.io/github/license/caoxiemeihao/electron-vite-vue?style=flat"/>
 </div>
 
-[English](README.en.md) | 简体中文
-
-
 
 # 使用|Usage
 

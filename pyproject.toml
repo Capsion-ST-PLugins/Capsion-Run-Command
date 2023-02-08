@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "cps-run-command"
+version = "0.1.0"
+description = ""
+authors = ["cpasion-office-win10 <373704015@qq.com>"]
+license = "MIT"
+readme = "README.md"
+
+packages = [{include = "scripts/*.py"}]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+test1 = 'scripts.test:main'
+test2 = 'scripts.test:main'
+test3 = 'scripts.test:main'

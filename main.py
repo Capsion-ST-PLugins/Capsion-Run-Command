@@ -7,6 +7,8 @@ from .core import shell
 from .core.typing import Optional, List
 from .core.history import History
 
+from .core.scriptsParser import extract_scripts_from_project_file
+
 DEFAULT_SETTINGS = "cps.sublime-settings"
 
 PANEL_NAME = "cps"
@@ -27,6 +29,9 @@ RUN_IN_NEW_WINDOW_PREFIX = [":", "$"]  # 指定需要单独执行命令的前缀
 
 MODE_CUSTOM_COMMAND = 0
 MODE_DELETE_HISTORY = 1
+
+SCRIPTS_SUFFIX: str = "[script]"
+SCRIPTS_LIST: List[str] = []
 
 
 DEFAULT_PANEL_SETTINGS = {
@@ -53,9 +58,10 @@ DEFAULT_PANEL_SETTINGS = {
 # histroy settings
 MSG_SELECTIONS_HELP = 'Press "Enter" to enter a custom command'
 HIGHEST_SELECTIONS = [
-    "【command】 input custom command",
-    "【command】 delete histroy command",
+    "【菜单】 input custom command",
+    "【菜单】 delete histroy command",
 ]
+SCRIPTS_LIST = []
 history_file = path.join(sublime.packages_path(), "User", f".{__package__}.histroy")
 HISTORY = History(history_file, max_count=100)
 
@@ -98,10 +104,7 @@ class CpsUpdatePanelCommand(sublime_plugin.TextCommand):
     """
     @Description 的panel窗体数据。
 
-    - param panel_name :{str} "panel_name":panel_name,
-
-    returns `{type}` {description}
-
+    - param panel_name :{str} "panel_name":panel_name
     """
 
     def run(self, edit: sublime.Edit, panel_name: str, data: str):
@@ -144,10 +147,9 @@ class CpsRunCommandsCommand(sublime_plugin.TextCommand):
     """
 
     def run(self, edit: sublime.Edit):
-        global HISTORY, HIGHEST_SELECTIONS, DEFAULT_SETTINGS
+        global HISTORY, HIGHEST_SELECTIONS, DEFAULT_SETTINGS, SCRIPTS_LIST
 
         SETTINGS = sublime.load_settings(DEFAULT_SETTINGS).get(PLUGIN_NAME, {})
-        print("SETTINGS: ", SETTINGS)
 
         window = sublime.active_window()
         panel_name = window.active_panel()
@@ -159,6 +161,18 @@ class CpsRunCommandsCommand(sublime_plugin.TextCommand):
 
         commands_list = HISTORY.data[0:commands_count]
 
+        # TODO: 这里添加一个配置明确脚本是内部调用（阻塞）还是外部执行（调用独立shell）
+        # if xxxx:
+        #     SCRIPTS_LIST = extract_scripts_from_project_file(self.view.file_name())
+        SCRIPTS_LIST = [
+            f":{each_script}"
+            for each_script in extract_scripts_from_project_file(self.view.file_name())
+        ]
+        # 添加前缀
+        scripts_list_with_tag = [
+            f"{SCRIPTS_SUFFIX} {command}" for command in SCRIPTS_LIST
+        ]
+
         # 生成: "x. command" 的格式
         selection_with_index = [
             f"{index + 1 }.  {commands_list[index]}"
@@ -168,7 +182,9 @@ class CpsRunCommandsCommand(sublime_plugin.TextCommand):
         if panel_name:
             window.run_command("hide_panel", {"panel": panel_name})
         else:
-            self.show_selection(HIGHEST_SELECTIONS + selection_with_index)
+            self.show_selection(
+                HIGHEST_SELECTIONS + scripts_list_with_tag + selection_with_index
+            )
 
     def show_selection(self, items: List[str]):
         """
@@ -220,6 +236,7 @@ class CpsRunCommandsCommand(sublime_plugin.TextCommand):
             print("history delete fail: ", e)
 
     def on_select(self, user_select_index: int):
+        global SCRIPTS_LIST, MODE_RUN_SCRIPTS
         global HIGHEST_SELECTIONS, HISTORY
         global MODE_CUSTOM_COMMAND, MODE_DELETE_HISTORY
 
@@ -227,9 +244,8 @@ class CpsRunCommandsCommand(sublime_plugin.TextCommand):
         if user_select_index == -1:
             return
 
-        # 【command】 delete histroy command
+        # 【菜单】 delete histroy command
         elif user_select_index == MODE_DELETE_HISTORY:
-            placeholder = f"input 0~{len(HISTORY.data)}"
             # 生成: "x. command" 的格式
             selection_with_index = [
                 f"{index}.  {HISTORY.data[index]}" for index in range(len(HISTORY.data))
@@ -244,12 +260,22 @@ class CpsRunCommandsCommand(sublime_plugin.TextCommand):
                 placeholder="select a command to delete",
             )
 
-        # 【command】 input custom command
+        # 【菜单】 执行自定义命令，调用pannel
         elif user_select_index == MODE_CUSTOM_COMMAND:
             self.input_custom_commands()
 
+        # 【SCRIPTS】
+        # 用户选择的索引小于脚本指令的长度则是执行脚本指令
+        elif (len(HIGHEST_SELECTIONS) + len(SCRIPTS_LIST)) > user_select_index:
+            script_index = user_select_index - len(HIGHEST_SELECTIONS)
+            self.on_done(SCRIPTS_LIST[script_index])
+
+        # 执行历史命令
         else:
-            self.on_done(HISTORY.data[user_select_index - len(HIGHEST_SELECTIONS)])
+            command_index = (
+                user_select_index - len(HIGHEST_SELECTIONS) - len(SCRIPTS_LIST)
+            )
+            self.on_done(HISTORY.data[command_index])
 
     def on_done(self, user_input: int):
         # print("user_input: ", user_input)
