@@ -103,6 +103,9 @@ def extract_scripts_from_project_file(file_path: str) -> List[str]:
         ini_data = configparser.ConfigParser()
         ini_data.read(project_file, encoding="utf-8")
 
+        if not FIELD_SCRIPTS_PY in ini_data.keys():
+            return res
+
         for scripts_key in ini_data[FIELD_SCRIPTS_PY]:
             # 发现执行脚本，拼接成命令
             # print("scripts_key: ", scripts_key)
