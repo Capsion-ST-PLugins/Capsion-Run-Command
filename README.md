@@ -8,7 +8,7 @@
 
 ST 在项目中直接执行 shell 是前天性的功能不足，不像 vscode 的集成的 shell 那么强大。而老牌的 `sublimeREPL` 在中文环境中使用奇奇怪怪的 BUG，而且更新也不及时为了自己爽，特意开发了一个带历史记录简易版，原理是直接调用 `SublimeText`的原生搜索框来直接调用 `cmd`或者 `powershell`来执行一些指令。
 
-![screenshot](/screenshot/cps-Run-Command.gif "screenshot")
+![screenshot](/screenshot/cps-Run-Command.gif "screenshot1")
 **主要功能**：
 
 - 快捷调出命令输入窗口，自动关闭
