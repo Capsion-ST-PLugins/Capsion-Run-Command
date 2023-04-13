@@ -14,7 +14,7 @@ ST 在项目中直接执行 shell 是前天性的功能不足，不像 vscode �
 
 ## 功能|Feature
 
-![screenshot](/screenshot/cps-Run-Command.gif "screenshot")
+![screenshot](/screenshot/sublimeTextPlugs/cps-run-commands/cps-Run-Command.gif)
 ![cps-Run-Command](http://localhost:45462/image/cps-Run-Command.gif)
 
 - 快捷调出命令输入窗口，自动关闭
