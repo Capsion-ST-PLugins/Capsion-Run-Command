@@ -5,25 +5,51 @@
     <img flex="left" src="https://img.shields.io/badge/Sublime%20Text-FF9800?style=flat&logo=Sublime%20Text&logoColor=white"/>
     <img flex="left" src="https://img.shields.io/github/license/caoxiemeihao/electron-vite-vue?style=flat"/>
 </div>
+ST 在项目中直接执行 shell 是前天性的功能不足，不像 vscode 的集成的 shell 那么强大。而老牌的 `sublimeREPL` 在中文环境中使用奇奇怪怪的 BUG，而且更新也不及时，为了提高团队和自己的调式效率，特意开发了一个带历史记录简易版，原理是直接调用 `SublimeText`的原生搜索框来直接调用 `cmd`或者 `powershell`来执行一些指令。
 
-ST 在项目中直接执行 shell 是前天性的功能不足，不像 vscode 的集成的 shell 那么强大。而老牌的 `sublimeREPL` 在中文环境中使用奇奇怪怪的 BUG，而且更新也不及时为了自己爽，特意开发了一个带历史记录简易版，原理是直接调用 `SublimeText`的原生搜索框来直接调用 `cmd`或者 `powershell`来执行一些指令。
+> - 本插件为团队内部打造使用，不对外更新负责，
+> - 2023年了，前端建议采用**VSCode**。
 
-![screenshot](./screenshot/cps-Run-Command.gif "screenshot")
-**主要功能**：
+
+## 功能|Feature
+
+![screenshot](/screenshot/sublimeTextPlugs/cps-run-commands/cps-Run-Command.gif)
+![cps-Run-Command](http://localhost:45462/image/cps-Run-Command.gif)
 
 - 快捷调出命令输入窗口，自动关闭
 - 自定义条数的保留历史记录，支持管理
-- 自动读取项目的 scripts 到命令列表快捷调用，当前支持：
+- 自动读取项目的 **scripts** 到命令列表快捷调用，当前支持：
   - 所有 **node** 项目 `package.json`文件对应的 scripts 字段
   - 所有 **python** 项目的 `poetry.toml` 对应的 scripts 字段
-- 支持内置显示（阻塞），外置 shell 窗宽（非阻塞）两种方式
+- 支持内置调用（阻塞），外置调用（非阻塞）两种方式
+
+
+
+## 安装|Install
+
+```bash
+# 打开 SublimeText3的插件目录，并在该目录下打开shell
+菜单栏 > Preferences > Browse Packages...
+
+# 在插件目录运行shell，下载插件
+# gitee
+git clone --depth=1 git@gitee.com:Capsion-ST-PLugins/Run-Command.git cps_run_command
+# or github
+git clone --depth=1 git@github.com:Capsion-ST-PLugins/Run-Command.git cps_run_command
+
+# 重启ST 通过快捷键调用（前提要打开一个有效文件）
+ctrl + f1 
+```
+
+
 
 ## 使用|Usage
 
-```bash
-# 调出原生输入框（至少打开了一个文件）
-alt + f1
+**快捷键：**
 
+- `alt + f1`：调出插件面板（前提要打开一个有效文件）
+
+```bash
 # 支持单条命令
 npm i
 
@@ -41,28 +67,53 @@ $npm init -y
 npm init
 ```
 
-## 配置文件
+
+
+## 配置文件|Configure
+
+### 插件配置
 
 - `Packages/User/cps.sublime-settings`
 
 ```javascript
-// Packages/User/cps.sublime-settings
+// 配置文件
 {
   "name": "tett 插件",
   "author": "CPS",
   "mail": "373704015@qq.com",
 
-  "cps_run_commands": {
-    // 所有配置都在这个字段内
+  "cps_run_commands": { // 所有配置都在这个字段内
     "default_workspace": ".", // 默认的工作目录
-    "history_count": 100 // 历史记录数量
+    "history_count": 100      // 历史记录数量
+      
+    "mode_scripts_enable":true,           // 读取py和node项目的script字段
+    "mode_scripts_run_in_new_shell":true, // 脚本通过独立的shell运行，不阻塞sublimetext
   }
 }
 ```
 
-## 项目架构
+### 快捷键
 
-```ini
+- `Packages/User/Default.sublime-keymap`
+
+```js
+[
+  {
+    "keys": ["alt+f1"],
+    "command": "cps_run_commands"   // 打开调用窗体
+  },
+  {
+    "keys": ["alt+f2"],
+    "command": "cps_panel_toggle"   // 过往历史信息
+  },
+]
+```
+
+
+
+## 项目架构|Tree
+
+```basic
 DIR:cps-Run-Command                 # root
    |-- .github/                     #
    |   |-- workflows/               # 「workflows」
@@ -98,6 +149,8 @@ DIR:cps-Run-Command                 # root
    `-- .gitignore                   #
 
 ```
+
+
 
 ## 联系方式|Contact
 

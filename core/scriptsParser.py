@@ -117,9 +117,12 @@ def extract_scripts_from_project_file(file_path: str) -> List[str]:
     elif project_file.endswith(".json"):
         with open(project_file, mode="r", encoding="utf-8") as f:
             json_data = json.loads(f.read())
-            scripts = json_data.get("scripts")
+            scripts = json_data.get("scripts", {})
 
-        return [f"npm run {script_key}" for script_key in scripts.keys()]
+            if scripts:
+                return [f"npm run {script_key}" for script_key in scripts.keys()]
+
+    return list()
 
 
 if __name__ == "__main__":
