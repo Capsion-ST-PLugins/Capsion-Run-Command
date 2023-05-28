@@ -30,7 +30,7 @@ RUN_IN_NEW_WINDOW_PREFIX = [":", "$"]  # 指定需要单独执行命令的前缀
 MODE_CUSTOM_COMMAND = 0
 MODE_DELETE_HISTORY = 1
 
-SCRIPTS_SUFFIX: str = "[script]"
+SCRIPTS_SUFFIX: str = "【NPM Scripts】"
 SCRIPTS_LIST: List[str] = []
 
 
@@ -165,7 +165,7 @@ class CpsRunCommandsCommand(sublime_plugin.TextCommand):
         # if xxxx:
         #     SCRIPTS_LIST = extract_scripts_from_project_file(self.view.file_name())
         SCRIPTS_LIST = [
-            f":{each_script}"
+            each_script
             for each_script in extract_scripts_from_project_file(self.view.file_name())
         ]
         # 添加前缀

@@ -121,6 +121,7 @@ def extract_scripts_from_project_file(file_path: str) -> List[str]:
 
             if scripts:
                 return [f"npm run {script_key}" for script_key in scripts.keys()]
+                # return [fscript_key for script_key in scripts.keys()]
 
     return list()
 
