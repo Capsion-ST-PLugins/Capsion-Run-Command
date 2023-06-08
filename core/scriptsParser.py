@@ -15,7 +15,7 @@ import os, configparser, json
 from typing import List
 
 FIELD_SCRIPTS_PY = "tool.poetry.scripts"
-PROJECT_PATH_FILE_LIST = [".git", "readme.md", "node_modules"]
+PROJECT_PATH_FILE_LIST = [".gitgnore", ".git", "readme.md", "node_modules"]
 
 
 def get_project_root(
@@ -24,7 +24,7 @@ def get_project_root(
     file_folder = os.path.dirname(file_path)
 
     for each_file in os.listdir(file_folder):
-        if each_file in PROJECT_PATH_FILE_LIST:
+        if each_file.lower() in PROJECT_PATH_FILE_LIST:
             return file_folder
 
     currt_deep += 1
