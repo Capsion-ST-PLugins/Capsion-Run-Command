@@ -18,9 +18,7 @@ FIELD_SCRIPTS_PY = "tool.poetry.scripts"
 PROJECT_PATH_FILE_LIST = [".gitgnore", ".git", "readme.md", "node_modules"]
 
 
-def get_project_root(
-    file_path: str, max_deep: int = 100, currt_deep: int = 0, SEARCH_LIST=None
-) -> str:
+def get_project_root(file_path: str, max_deep: int = 100, currt_deep: int = 0, SEARCH_LIST=None) -> str:
     file_folder = os.path.dirname(file_path)
 
     for each_file in os.listdir(file_folder):
@@ -84,46 +82,48 @@ def extract_scripts_from_project_file(file_path: str) -> List[str]:
     """
     res = []
 
-    # 查找项目根目录
-    project_path = get_project_root(file_path)
-    if not get_project_root:
-        return res
-
-    # 先判断是什么项目，当前仅支持python和nodejs
-    project_file = is_python_project(project_path)
-    if not project_file:
-        project_file = is_nodejs_project(project_path)
-
-    if not project_file:
-        print("无法识别当前项目类型")
-        return res
-
-    # 读取ini文件
-    if project_file.endswith((".ini", "toml", "tml")):
-        ini_data = configparser.ConfigParser()
-        ini_data.read(project_file, encoding="utf-8")
-
-        if not FIELD_SCRIPTS_PY in ini_data.keys():
+    try:
+        # 查找项目根目录
+        project_path = get_project_root(file_path)
+        if not get_project_root:
             return res
 
-        for scripts_key in ini_data[FIELD_SCRIPTS_PY]:
-            # 发现执行脚本，拼接成命令
-            # print("scripts_key: ", scripts_key)
-            # print("scripts_val: ", ini_data[FIELD_SCRIPTS][scripts_key])
-            res.append(f"poetry run {scripts_key}")
+        # 先判断是什么项目，当前仅支持python和nodejs
+        project_file = is_python_project(project_path)
+        if not project_file:
+            project_file = is_nodejs_project(project_path)
 
+        if not project_file:
+            print("无法识别当前项目类型")
+            return res
+
+        # 读取ini文件
+        if project_file.endswith((".ini", "toml", "tml")):
+            ini_data = configparser.ConfigParser()
+            ini_data.read(project_file, encoding="utf-8")
+
+            if not FIELD_SCRIPTS_PY in ini_data.keys():
+                return res
+
+            for scripts_key in ini_data[FIELD_SCRIPTS_PY]:
+                # 发现执行脚本，拼接成命令
+                # print("scripts_key: ", scripts_key)
+                # print("scripts_val: ", ini_data[FIELD_SCRIPTS][scripts_key])
+                res.append(f":poetry run {scripts_key}")
+
+            return res
+        # 解析json
+        elif project_file.endswith(".json"):
+            with open(project_file, mode="r", encoding="utf-8") as f:
+                json_data = json.loads(f.read())
+                scripts = json_data.get("scripts", {})
+
+                if scripts:
+                    return [f":npm run {script_key}" for script_key in scripts.keys()]
+                    # return [fscript_key for script_key in scripts.keys()]
         return res
-    # 解析json
-    elif project_file.endswith(".json"):
-        with open(project_file, mode="r", encoding="utf-8") as f:
-            json_data = json.loads(f.read())
-            scripts = json_data.get("scripts", {})
-
-            if scripts:
-                return [f"npm run {script_key}" for script_key in scripts.keys()]
-                # return [fscript_key for script_key in scripts.keys()]
-
-    return list()
+    except Exception as e:
+        return res
 
 
 if __name__ == "__main__":
