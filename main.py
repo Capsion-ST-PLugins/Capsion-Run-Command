@@ -160,31 +160,22 @@ class CpsRunCommandsCommand(sublime_plugin.TextCommand):
             commands_count = 500
 
         commands_list = HISTORY.data[0:commands_count]
+        # print("创建历史记录", HISTORY.data[0])
 
         # TODO: 这里添加一个配置明确脚本是内部调用（阻塞）还是外部执行（调用独立shell）
         # if xxxx:
         #     SCRIPTS_LIST = extract_scripts_from_project_file(self.view.file_name())
-        SCRIPTS_LIST = [
-            each_script
-            for each_script in extract_scripts_from_project_file(self.view.file_name())
-        ]
+        SCRIPTS_LIST = [each_script for each_script in extract_scripts_from_project_file(self.view.file_name())]
         # 添加前缀
-        scripts_list_with_tag = [
-            f"{SCRIPTS_SUFFIX} {command}" for command in SCRIPTS_LIST
-        ]
+        scripts_list_with_tag = [f"{SCRIPTS_SUFFIX} {command}" for command in SCRIPTS_LIST]
 
         # 生成: "x. command" 的格式
-        selection_with_index = [
-            f"{index + 1 }.  {commands_list[index]}"
-            for index in range(len(commands_list))
-        ]
+        selection_with_index = [f"{index + 1 }.  {commands_list[index]}" for index in range(len(commands_list))]
 
         if panel_name:
             window.run_command("hide_panel", {"panel": panel_name})
         else:
-            self.show_selection(
-                HIGHEST_SELECTIONS + scripts_list_with_tag + selection_with_index
-            )
+            self.show_selection(HIGHEST_SELECTIONS + scripts_list_with_tag + selection_with_index)
 
     def show_selection(self, items: List[str]):
         """
@@ -247,9 +238,7 @@ class CpsRunCommandsCommand(sublime_plugin.TextCommand):
         # 【菜单】 delete histroy command
         elif user_select_index == MODE_DELETE_HISTORY:
             # 生成: "x. command" 的格式
-            selection_with_index = [
-                f"{index}.  {HISTORY.data[index]}" for index in range(len(HISTORY.data))
-            ]
+            selection_with_index = [f"{index}.  {HISTORY.data[index]}" for index in range(len(HISTORY.data))]
 
             # 重新显示所有命令
             sublime.active_window().show_quick_panel(
@@ -272,9 +261,7 @@ class CpsRunCommandsCommand(sublime_plugin.TextCommand):
 
         # 执行历史命令
         else:
-            command_index = (
-                user_select_index - len(HIGHEST_SELECTIONS) - len(SCRIPTS_LIST)
-            )
+            command_index = user_select_index - len(HIGHEST_SELECTIONS) - len(SCRIPTS_LIST)
             self.on_done(HISTORY.data[command_index])
 
     def on_done(self, user_input: int):
@@ -307,9 +294,7 @@ class CpsRunCommandsCommand(sublime_plugin.TextCommand):
         if has_open_file:
             work_space = os.path.dirname(has_open_file)
         else:
-            work_space = SETTINGS.get(
-                "default_workspace", path.join(sublime.packages_path(), __package__)
-            )
+            work_space = SETTINGS.get("default_workspace", path.join(sublime.packages_path(), __package__))
 
         # run in new shell window
         run_with_new_window = False
@@ -326,6 +311,8 @@ class CpsRunCommandsCommand(sublime_plugin.TextCommand):
 
         if record_commands:
             HISTORY.add(user_input)
+            print("user_input: ", user_input)
+            print("user_input: ", HISTORY.data[0])
 
         res = shell.run_command(
             commands,
