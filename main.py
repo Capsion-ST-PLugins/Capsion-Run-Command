@@ -30,7 +30,7 @@ RUN_IN_NEW_WINDOW_PREFIX = [":", "$"]  # 指定需要单独执行命令的前缀
 MODE_CUSTOM_COMMAND = 0
 MODE_DELETE_HISTORY = 1
 
-SCRIPTS_SUFFIX: str = "【NPM Scripts】"
+SCRIPTS_SUFFIX: str = "【Project Script】"
 SCRIPTS_LIST: List[str] = []
 
 
@@ -167,15 +167,16 @@ class CpsRunCommandsCommand(sublime_plugin.TextCommand):
         #     SCRIPTS_LIST = extract_scripts_from_project_file(self.view.file_name())
         SCRIPTS_LIST = [each_script for each_script in extract_scripts_from_project_file(self.view.file_name())]
         # 添加前缀
-        scripts_list_with_tag = [f"{SCRIPTS_SUFFIX} {command}" for command in SCRIPTS_LIST]
+        SCRIPTS_LIST_WITH_PREFIX = [f"{SCRIPTS_SUFFIX} {command}" for command in SCRIPTS_LIST]
 
-        # 生成: "x. command" 的格式
+        # 1、生成: "x. command" 的格式
+        # 2、将历史记录加入到显示列表
         selection_with_index = [f"{index + 1 }.  {commands_list[index]}" for index in range(len(commands_list))]
 
         if panel_name:
             window.run_command("hide_panel", {"panel": panel_name})
         else:
-            self.show_selection(HIGHEST_SELECTIONS + scripts_list_with_tag + selection_with_index)
+            self.show_selection(HIGHEST_SELECTIONS + SCRIPTS_LIST_WITH_PREFIX + selection_with_index)
 
     def show_selection(self, items: List[str]):
         """

@@ -58,15 +58,15 @@ class History:
     def add(self, new_histroy: str):
         if not self.repeat:
             if new_histroy in self.data:
-                # print("以存在的历史记录")
+                # 已存在历史记录，将已存在的记录更新到第一行
+                self.data.remove(new_histroy)
+                self.data.insert(0, new_histroy)
                 return self
 
         while len(self.data) > self.max_count:
             self.data.pop()
 
         self.data.insert(0, new_histroy)
-        # print("self.data: ", self.data[0])
-
         self.dump()
 
         return self
