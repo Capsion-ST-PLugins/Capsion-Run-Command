@@ -55,18 +55,17 @@ class History:
             print(err)
             raise FileExistsError
 
-    def add(self, new_histroy: str):
-        if not self.repeat:
-            if new_histroy in self.data:
-                # 已存在历史记录，将已存在的记录更新到第一行
-                self.data.remove(new_histroy)
-                self.data.insert(0, new_histroy)
-                return self
+    def add(self, new_history: str):
+        # 检查是否允许重复或新记录是否已存在
+        if not self.repeat and new_history in self.data:
+            # 已存在历史记录，将已存在的记录更新到第一行
+            self.data.remove(new_history)
+            self.data.insert(0, new_history)
 
         while len(self.data) > self.max_count:
             self.data.pop()
 
-        self.data.insert(0, new_histroy)
+        self.data.insert(0, new_history)
         self.dump()
 
         return self
